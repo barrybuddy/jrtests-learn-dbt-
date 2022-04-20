@@ -1,0 +1,206 @@
+Bigdata Hadoop and Spark Developer ---- Day 5
+Trainer: Prashant Nair
+================================================================================================
+
+Day5 Agenda
+-----------
+
+Apache Flume __ Data Acquisition
+Quick YARN Discussion
+Introduction to Apache Spark 
+Quick Setup
+
+
+Data Acquisition
+----------------------
+Goal: To Grab the RAW data and store the same in a persistant storage ( COLLECT AND STORE )
+
+File  ----------------------> copyFromLocal --------------------------> HDFS
+
+
+DB    ----------------------> Apache Sqoop --------------------------> HDFS
+				(import)
+				(conditional imports)(--where, --query)
+				(incremental imports) (append)
+
+Streams --------------------> Apache Flume --------------------------> HDFS
+			      Apache Kafka
+
+
+
+Apache Flume
+---------------
+
+Its a data acquisition tool for dealing with realtime streaming data.
+
+
+
+Stream 
+Source  ------------------> FLUME ----------------------------------> Storage Area
+
+Flume consists of 3 components:
+
+1. Source ----> Component used to connect/monitor the realtime stream source
+2. Channel ---> First Entry point of the system to store intermediate data
+3. Sink ------> Persistant storage location / Target location or app.
+
+
+Lab1: Create a Flume agent to grab realtime data stream from a network program and store the content in HDFS.
+--------------------------------------------------------------------------------------------
+0. Decide the name of the agent
+
+Agent Name: ncHDFSAgent
+
+1. Creating a configuration file for the agent
+
+vim myconf.conf
+
+
+#Create Names/Variables for 3 components
+
+ncHDFSAgent.sources=getFromNetcat
+ncHDFSAgent.channels=goToRAM
+ncHDFSAgent.sinks=writeToHDFS
+
+#Configure Source i.e. getFromNetcat
+
+ncHDFSAgent.sources.getFromNetcat.type=netcat
+ncHDFSAgent.sources.getFromNetcat.bind=localhost
+ncHDFSAgent.sources.getFromNetcat.port=9898
+
+#Configure Channel ie. goToRAM
+
+ncHDFSAgent.channels.goToRAM.type=memory
+
+#Configure Sink
+
+ncHDFSAgent.sinks.writeToHDFS.type=hdfs
+ncHDFSAgent.sinks.writeToHDFS.hdfs.path=hdfs://nameservice1/user/prashantnair2050gmail/tigeranalytics/flumegrab
+ncHDFSAgent.sinks.writeToHDFS.hdfs.writeFormat=Text
+ncHDFSAgent.sinks.writeToHDFS.hdfs.fileType=DataStream
+
+#Connect the Source with the Channel && Connect the Sink with the Channel
+
+ncHDFSAgent.sources.getFromNetcat.channels=goToRAM
+ncHDFSAgent.sinks.writeToHDFS.channel=goToRAM
+
+
+
+2. Run the config
+
+Console1:
+
+flume-ng agent --name ncHDFSAgent -f myconf.conf
+
+
+
+Console2:
+
+nc localhost 9898
+
+(Copypaste data)
+
+
+
+Assignment - Create a flume agent that can sync data from local directory to HDFS
+
+(25 mins)
+
+
+
+
+#Create Names/Variables for 3 components
+
+ncHDFSAgent.sources=getFromNetcat
+ncHDFSAgent.channels=goToRAM
+ncHDFSAgent.sinks=writeToHDFS
+
+#Configure Source i.e. getFromNetcat
+
+ncHDFSAgent.sources.getFromNetcat.type=spooldir
+ncHDFSAgent.sources.getFromNetcat.spoolDir=/mnt/home/prashantnair2050gmail/flumetest
+
+#Configure Channel ie. goToRAM
+
+ncHDFSAgent.channels.goToRAM.type=memory
+
+#Configure Sink
+
+ncHDFSAgent.sinks.writeToHDFS.type=hdfs
+ncHDFSAgent.sinks.writeToHDFS.hdfs.path=hdfs://nameservice1/user/prashantnair2050gmail/tigeranalytics/FromLocal
+ncHDFSAgent.sinks.writeToHDFS.hdfs.writeFormat=Text
+ncHDFSAgent.sinks.writeToHDFS.hdfs.fileType=DataStream
+
+#Connect the Source with the Channel && Connect the Sink with the Channel
+
+ncHDFSAgent.sources.getFromNetcat.channels=goToRAM
+ncHDFSAgent.sinks.writeToHDFS.channel=goToRAM
+
+
+
+
+
+
+
+Setting up Apache Spark's PySpark Development Environment for Practicing Code
+==============================================================================
+
+Requirements:
+
+1. Oracle Java 8 or later
+2. Apache Spark 2.x
+3. Winutils
+
+
+Steps:
+1. Setup Environment Variables (User Variables)
+
+	JAVA_HOME = C:\Program Files\Java\jdk1.8.0_221
+	PATH = C:\Program Files\Java\jdk1.8.0_221\bin
+	HADOOP_HOME=C:\apachespark\spark-2.4.7-bin-hadoop2.7
+	SPARK_HOME=C:\apachespark\spark-2.4.7-bin-hadoop2.7
+
+
+2. Extract winutils.zip and spark zip in C:\apachespark location. Maintain winutils.exe inside the bin folder of spark-2.4.7-bin-hadoop2.7
+
+3. Create a new Python Env for PySpark
+
+	conda create --name pysparkenv111 --clone base
+
+	conda activate pysparkenv111
+
+
+4. Install findspark
+
+	conda install -c conda-forge findspark
+
+
+5. Start Jupyter 
+
+	jupyter notebook
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
